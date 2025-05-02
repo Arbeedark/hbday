@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Countdown to H&amp;B Day!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #DF70A3;
+      font-family: sans-serif;
+      text-align: center;
+      color: white;
+    }
+    /* a quick outline effect via multiple shadows */
+    .outlined {
+      text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin: 50px 0 20px;
+    }
+    #countdown {
+      font-size: 2em;
+    }
+    .unit {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .number {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .label {
+      display: block;
+      font-size: 0.5em;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="outlined">Countdown to H&amp;B Day!</h1>
+  <div id="countdown">
+    <div class="unit">
+      <div class="number outlined" id="days">—</div>
+      <div class="label outlined">Days</div>
+    </div>
+    <div class="unit">
+      <div class="number outlined" id="hours">—</div>
+      <div class="label outlined">Hours</div>
+    </div>
+    <div class="unit">
+      <div class="number outlined" id="minutes">—</div>
+      <div class="label outlined">Minutes</div>
+    </div>
+    <div class="unit">
+      <div class="number outlined" id="seconds">—</div>
+      <div class="label outlined">Seconds</div>
+    </div>
+  </div>
+
+  <script>
+    // Target: May 14, 2025 at 00:00:00
+    const targetDate = new Date(2025, 4, 14, 0, 0, 0).getTime();
+
+    const timerId = setInterval(() => {
+      const now = Date.now();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        clearInterval(timerId);
+        document.getElementById('countdown').innerHTML =
+          '<strong class="outlined" style="font-size:2em;">🎉 H&amp;B Day is Here! 🎉</strong>';
+        return;
+      }
+
+      const days    = Math.floor(diff / (1000*60*60*24));
+      const hours   = Math.floor((diff / (1000*60*60)) % 24);
+      const minutes = Math.floor((diff / (1000*60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById('days').textContent    = days;
+      document.getElementById('hours').textContent   = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }, 1000);
+  </script>
+
+</body>
+</html>
