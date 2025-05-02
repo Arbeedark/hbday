@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <title>Countdown to H&amp;B Day!</title>
   <style>
-    /* 1) Wrap everything in a fluid container */
     .countdown-container {
       width: 100%;
-      max-width: 600px;    /* → change this to suit your layout */
+      max-width: 600px;
       margin: 0 auto;
       padding: 1rem;
       background: #DF70A3;
@@ -15,7 +14,6 @@
       color: white;
     }
 
-    /* 2) Use clamp() to scale fonts between a min & max */
     h1 {
       margin: 0 0 1rem;
       font-size: clamp(1.5rem, 5vw, 3rem);
@@ -33,13 +31,12 @@
 
     .unit {
       flex: 1;
-      /* ensure they wrap on narrow screens */
       min-width: 4rem;
     }
 
     .number {
       font-weight: bold;
-      font-size: 2em;       /* 2× the container’s font-size */
+      font-size: 2em;
       line-height: 1;
       text-shadow:
         -1px -1px 0 #000, 1px -1px 0 #000,
@@ -47,11 +44,30 @@
     }
 
     .label {
-      font-size: 0.5em;     /* half the container’s font-size */
+      font-size: 0.5em;
       margin-top: 0.25em;
       text-shadow:
         -1px -1px 0 #000, 1px -1px 0 #000,
         -1px  1px 0 #000, 1px  1px 0 #000;
+    }
+
+    /* Button styles */
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.5rem 1rem;
+      font-size: clamp(0.75rem, 2vw, 1rem);
+      color: white;
+      text-decoration: none;
+      border: 2px solid white;
+      border-radius: 0.25rem;
+      text-shadow:
+        -1px -1px 0 #000, 1px -1px 0 #000,
+        -1px  1px 0 #000, 1px  1px 0 #000;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.2);
     }
   </style>
 </head>
@@ -77,6 +93,11 @@
         <div class="label">Seconds</div>
       </div>
     </div>
+
+    <!-- Button linking to Google -->
+    <a href="https://www.google.com" class="btn" target="_blank" rel="noopener">
+      Go to Google
+    </a>
   </div>
 
   <script>
