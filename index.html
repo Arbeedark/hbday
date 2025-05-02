@@ -4,84 +4,98 @@
   <meta charset="UTF-8">
   <title>Countdown to H&amp;B Day!</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #DF70A3;
-      font-family: sans-serif;
+    /* 1) Wrap everything in a fluid container */
+    .countdown-container {
+      width: 100%;
+      max-width: 600px;    /* → change this to suit your layout */
+      margin: 0 auto;
+      padding: 1rem;
+      background: #DF70A3;
       text-align: center;
       color: white;
     }
-    /* a quick outline effect via multiple shadows */
-    .outlined {
-      text-shadow:
-        -1px -1px 0 #000,
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000;
-    }
+
+    /* 2) Use clamp() to scale fonts between a min & max */
     h1 {
-      font-size: 2.5em;
-      margin: 50px 0 20px;
+      margin: 0 0 1rem;
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      text-shadow:
+        -1px -1px 0 #000, 1px -1px 0 #000,
+        -1px  1px 0 #000, 1px  1px 0 #000;
     }
+
     #countdown {
-      font-size: 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(1rem, 3vw, 2rem);
     }
+
     .unit {
-      display: inline-block;
-      margin: 0 10px;
+      flex: 1;
+      /* ensure they wrap on narrow screens */
+      min-width: 4rem;
     }
+
     .number {
       font-weight: bold;
-      font-size: 1.2em;
+      font-size: 2em;       /* 2× the container’s font-size */
+      line-height: 1;
+      text-shadow:
+        -1px -1px 0 #000, 1px -1px 0 #000,
+        -1px  1px 0 #000, 1px  1px 0 #000;
     }
+
     .label {
-      display: block;
-      font-size: 0.5em;
-      margin-top: 4px;
+      font-size: 0.5em;     /* half the container’s font-size */
+      margin-top: 0.25em;
+      text-shadow:
+        -1px -1px 0 #000, 1px -1px 0 #000,
+        -1px  1px 0 #000, 1px  1px 0 #000;
     }
   </style>
 </head>
 <body>
 
-  <h1 class="outlined">Countdown to H&amp;B Day!</h1>
-  <div id="countdown">
-    <div class="unit">
-      <div class="number outlined" id="days">—</div>
-      <div class="label outlined">Days</div>
-    </div>
-    <div class="unit">
-      <div class="number outlined" id="hours">—</div>
-      <div class="label outlined">Hours</div>
-    </div>
-    <div class="unit">
-      <div class="number outlined" id="minutes">—</div>
-      <div class="label outlined">Minutes</div>
-    </div>
-    <div class="unit">
-      <div class="number outlined" id="seconds">—</div>
-      <div class="label outlined">Seconds</div>
+  <div class="countdown-container">
+    <h1>Countdown to H&amp;B Day!</h1>
+    <div id="countdown">
+      <div class="unit">
+        <div class="number" id="days">—</div>
+        <div class="label">Days</div>
+      </div>
+      <div class="unit">
+        <div class="number" id="hours">—</div>
+        <div class="label">Hours</div>
+      </div>
+      <div class="unit">
+        <div class="number" id="minutes">—</div>
+        <div class="label">Minutes</div>
+      </div>
+      <div class="unit">
+        <div class="number" id="seconds">—</div>
+        <div class="label">Seconds</div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Target: May 14, 2025 at 00:00:00
     const targetDate = new Date(2025, 4, 14, 0, 0, 0).getTime();
 
     const timerId = setInterval(() => {
-      const now = Date.now();
+      const now  = Date.now();
       const diff = targetDate - now;
 
       if (diff <= 0) {
         clearInterval(timerId);
         document.getElementById('countdown').innerHTML =
-          '<strong class="outlined" style="font-size:2em;">🎉 H&amp;B Day is Here! 🎉</strong>';
+          '<strong style="font-size:2em; text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">🎉 H&amp;B Day is Here! 🎉</strong>';
         return;
       }
 
-      const days    = Math.floor(diff / (1000*60*60*24));
-      const hours   = Math.floor((diff / (1000*60*60)) % 24);
-      const minutes = Math.floor((diff / (1000*60)) % 60);
+      const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours   = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
 
       document.getElementById('days').textContent    = days;
