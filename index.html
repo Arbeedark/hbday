@@ -7,11 +7,23 @@
   <!-- confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
+    /* Ensure confetti canvas is behind text */
+    canvas {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
     html, body {
       height: 100%;
       margin: 0;
     }
     .countdown-container {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -118,30 +130,26 @@
     updateCountdown();
     const countdownInterval = setInterval(updateCountdown, 1000);
 
-    // Confetti function: 20% smaller size (scalar 1.68)
+    // Continuous rain of confetti, 30% fewer and 30% smaller
     function rainConfetti() {
-      confetti({
-        particleCount: 12,
-        angle: 90,
-        spread: 140,
-        origin: { x: Math.random(), y: 0 },
-        colors: ['#FFD700'],
-        gravity: 1,
-        ticks: 400,
-        scalar: 1.68
-      });
-      confetti({
-        particleCount: 12,
-        angle: 90,
-        spread: 140,
-        origin: { x: Math.random(), y: 0 },
-        colors: ['#E63946'],
-        gravity: 1,
-        ticks: 400,
-        scalar: 1.68
+      const configs = [
+        { color: '#FFD700' },
+        { color: '#E63946' }
+      ];
+      configs.forEach(cfg => {
+        confetti({
+          particleCount: 8,          // reduced by 30% from 12 → 8
+          angle: 90,
+          spread: 140,
+          origin: { x: Math.random(), y: 0 },
+          colors: [cfg.color],
+          gravity: 1,
+          ticks: 400,
+          scalar: 1.176          // 30% smaller from 1.68 → ~1.176
+        });
       });
     }
-    // Start confetti immediately and keep running until countdown ends
+    // Start immediately and run until countdown ends
     rainConfetti();
     const confettiInterval = setInterval(rainConfetti, 80);
   </script>
