@@ -2,129 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Countdown to H&amp;B Day!</title>
+  <title>H&amp;B Day Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     .countdown-container {
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 1rem;
-      background: #DF70A3;
-      text-align: center;
-      color: white;
-    }
-
-    h1 {
-      margin: 0 0 1rem;
-      font-size: clamp(1.5rem, 5vw, 3rem);
-      text-shadow:
-        -1px -1px 0 #000, 1px -1px 0 #000,
-        -1px  1px 0 #000, 1px  1px 0 #000;
-    }
-
-    #countdown {
+      position: relative;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      font-size: clamp(1rem, 3vw, 2rem);
+      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
+      color: #FFFFFF;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      height: 100%;
+      overflow: hidden;
+      padding: 20px;
+      box-sizing: border-box;
     }
-
-    .unit {
-      flex: 1;
-      min-width: 4rem;
+    .headline {
+      font-size: 6vw;            /* was 5vw, now +20% */
+      font-weight: 900;
+      color: #E63946;
+      /* half-width white outline */
+      -webkit-text-stroke: 0.5px #FFFFFF;
+      text-shadow:
+         0.5px  0.5px 0 #FFFFFF,
+        -0.5px  0.5px 0 #FFFFFF,
+         0.5px -0.5px 0 #FFFFFF,
+        -0.5px -0.5px 0 #FFFFFF;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
     }
-
-    .number {
+    .timer {
+      display: flex;
+      gap: 2rem;
+      font-size: 4vw;
       font-weight: bold;
-      font-size: 2em;
-      line-height: 1;
-      text-shadow:
-        -1px -1px 0 #000, 1px -1px 0 #000,
-        -1px  1px 0 #000, 1px  1px 0 #000;
     }
-
-    .label {
-      font-size: 0.5em;
-      margin-top: 0.25em;
-      text-shadow:
-        -1px -1px 0 #000, 1px -1px 0 #000,
-        -1px  1px 0 #000, 1px  1px 0 #000;
+    .time-segment {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
-    /* Button styles */
-    .btn {
-      display: inline-block;
-      margin-top: 1.5rem;
-      padding: 0.5rem 1rem;
-      font-size: clamp(0.75rem, 2vw, 1rem);
-      color: white;
-      text-decoration: none;
-      border: 2px solid white;
-      border-radius: 0.25rem;
-      text-shadow:
-        -1px -1px 0 #000, 1px -1px 0 #000,
-        -1px  1px 0 #000, 1px  1px 0 #000;
-      transition: background 0.2s, color 0.2s;
+    .time-value {
+      font-size: 6vw;
     }
-    .btn:hover {
-      background: rgba(255,255,255,0.2);
+    .time-label {
+      font-size: 2vw;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 600px) {
+      .headline {
+        font-size: 12vw;         /* was 10vw, now +20% */
+        letter-spacing: 2px;
+      }
+      .timer { font-size: 8vw; gap: 1rem; }
+      .time-value { font-size: 10vw; }
+      .time-label { font-size: 4vw; }
     }
   </style>
 </head>
 <body>
-
   <div class="countdown-container">
-    <h1>Countdown to H&amp;B Day!</h1>
-    <div id="countdown">
-      <div class="unit">
-        <div class="number" id="days">—</div>
-        <div class="label">Days</div>
+    <div class="headline">H&amp;B Day Starts In...</div>
+    <div class="timer" id="timer">
+      <div class="time-segment">
+        <div class="time-value" id="days">0</div>
+        <div class="time-label">Days</div>
       </div>
-      <div class="unit">
-        <div class="number" id="hours">—</div>
-        <div class="label">Hours</div>
+      <div class="time-segment">
+        <div class="time-value" id="hours">00</div>
+        <div class="time-label">Hours</div>
       </div>
-      <div class="unit">
-        <div class="number" id="minutes">—</div>
-        <div class="label">Minutes</div>
+      <div class="time-segment">
+        <div class="time-value" id="minutes">00</div>
+        <div class="time-label">Minutes</div>
       </div>
-      <div class="unit">
-        <div class="number" id="seconds">—</div>
-        <div class="label">Seconds</div>
+      <div class="time-segment">
+        <div class="time-value" id="seconds">00</div>
+        <div class="time-label">Seconds</div>
       </div>
     </div>
-
-    <!-- Button linking to Google -->
-    <a href="https://www.google.com" class="btn" target="_blank" rel="noopener">
-      Go to Google
-    </a>
   </div>
 
   <script>
-    const targetDate = new Date(2025, 4, 14, 0, 0, 0).getTime();
+    // Countdown to June 14
+    const now    = new Date();
+    const year   = now.getFullYear();
+    const target = new Date(year, 5, 14, 0, 0, 0);
 
-    const timerId = setInterval(() => {
-      const now  = Date.now();
-      const diff = targetDate - now;
+    function updateCountdown() {
+      const diff = Math.max(0, target - new Date());
+      const s  = Math.floor((diff/1000) % 60);
+      const m  = Math.floor((diff/1000/60) % 60);
+      const h  = Math.floor((diff/1000/60/60) % 24);
+      const d  = Math.floor(diff/1000/60/60/24);
 
-      if (diff <= 0) {
-        clearInterval(timerId);
-        document.getElementById('countdown').innerHTML =
-          '<strong style="font-size:2em; text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;">🎉 H&amp;B Day is Here! 🎉</strong>';
-        return;
-      }
+      document.getElementById('days').textContent    = d;
+      document.getElementById('hours').textContent   = String(h).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(s).padStart(2, '0');
 
-      const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours   = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+      if (diff === 0) clearInterval(interval);
+    }
 
-      document.getElementById('days').textContent    = days;
-      document.getElementById('hours').textContent   = hours.toString().padStart(2, '0');
-      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-    }, 1000);
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    // Gold confetti
+    function launchConfetti() {
+      confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700'] });
+      confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700'] });
+    }
+    launchConfetti();
+    setInterval(launchConfetti, 3000);
   </script>
-
 </body>
 </html>
