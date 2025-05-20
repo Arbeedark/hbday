@@ -27,16 +27,16 @@
       box-sizing: border-box;
     }
     .headline {
-      font-size: 6vw;            /* was 5vw, now +20% */
+      font-size: 6vw;
       font-weight: 900;
-      color: #E63946;
-      /* half-width white outline */
-      -webkit-text-stroke: 0.5px #FFFFFF;
+      color: #c5ea76;
+      /* half-width black outline */
+      -webkit-text-stroke: 0.5px #000000;
       text-shadow:
-         0.5px  0.5px 0 #FFFFFF,
-        -0.5px  0.5px 0 #FFFFFF,
-         0.5px -0.5px 0 #FFFFFF,
-        -0.5px -0.5px 0 #FFFFFF;
+         0.5px  0.5px 0 #000000,
+        -0.5px  0.5px 0 #000000,
+         0.5px -0.5px 0 #000000,
+        -0.5px -0.5px 0 #000000;
       margin-bottom: 1.5rem;
       text-transform: uppercase;
       letter-spacing: 4px;
@@ -63,7 +63,7 @@
     }
     @media (max-width: 600px) {
       .headline {
-        font-size: 12vw;         /* was 10vw, now +20% */
+        font-size: 12vw;
         letter-spacing: 2px;
       }
       .timer { font-size: 8vw; gap: 1rem; }
@@ -97,16 +97,15 @@
 
   <script>
     // Countdown to June 14
-    const now    = new Date();
-    const year   = now.getFullYear();
+    const year   = new Date().getFullYear();
     const target = new Date(year, 5, 14, 0, 0, 0);
 
     function updateCountdown() {
       const diff = Math.max(0, target - new Date());
-      const s  = Math.floor((diff/1000) % 60);
-      const m  = Math.floor((diff/1000/60) % 60);
-      const h  = Math.floor((diff/1000/60/60) % 24);
-      const d  = Math.floor(diff/1000/60/60/24);
+      const s = Math.floor((diff / 1000) % 60);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
 
       document.getElementById('days').textContent    = d;
       document.getElementById('hours').textContent   = String(h).padStart(2, '0');
@@ -115,17 +114,31 @@
 
       if (diff === 0) clearInterval(interval);
     }
-
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
-    // Gold confetti
-    function launchConfetti() {
-      confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700'] });
-      confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700'] });
+    // Gold burst confetti
+    function burstConfetti() {
+      confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700'], gravity: 0.6 });
+      confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700'], gravity: 0.6 });
     }
-    launchConfetti();
-    setInterval(launchConfetti, 3000);
+    burstConfetti();
+    setInterval(burstConfetti, 3000);
+
+    // Continuous red rain confetti
+    function rainRedConfetti() {
+      confetti({
+        particleCount: 20,
+        angle: 90,
+        spread: 40,
+        origin: { x: Math.random(), y: 0 },
+        colors: ['#E63946'], // red confetti
+        gravity: 0.3,
+        scalar: 0.8,
+        drift: 0.5
+      });
+    }
+    setInterval(rainRedConfetti, 100);
   </script>
 </body>
 </html>
