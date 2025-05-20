@@ -94,11 +94,11 @@
   </div>
 
   <script>
-    // Countdown to June 14
     const target = new Date(new Date().getFullYear(), 5, 14);
 
     function updateCountdown() {
-      const diff = Math.max(0, target - new Date());
+      const now = new Date();
+      const diff = Math.max(0, target - now);
       const s = Math.floor((diff / 1000) % 60);
       const m = Math.floor((diff / (1000 * 60)) % 60);
       const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -109,14 +109,17 @@
       document.getElementById('minutes').textContent = String(m).padStart(2, '0');
       document.getElementById('seconds').textContent = String(s).padStart(2, '0');
 
-      if (diff === 0) clearInterval(interval);
+      if (diff === 0) {
+        clearInterval(countdownInterval);
+        clearInterval(confettiInterval);
+      }
     }
+    // Start countdown
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
+    const countdownInterval = setInterval(updateCountdown, 1000);
 
-    // Continuous rain of larger gold and red confetti
+    // Confetti function: 20% smaller size (scalar 1.68)
     function rainConfetti() {
-      // Gold confetti
       confetti({
         particleCount: 12,
         angle: 90,
@@ -125,9 +128,8 @@
         colors: ['#FFD700'],
         gravity: 1,
         ticks: 400,
-        scalar: 2.1
+        scalar: 1.68
       });
-      // Red confetti
       confetti({
         particleCount: 12,
         angle: 90,
@@ -136,11 +138,12 @@
         colors: ['#E63946'],
         gravity: 1,
         ticks: 400,
-        scalar: 2.1
+        scalar: 1.68
       });
     }
-    // Rain frequently to fill full height
-    setInterval(rainConfetti, 80);
+    // Start confetti immediately and keep running until countdown ends
+    rainConfetti();
+    const confettiInterval = setInterval(rainConfetti, 80);
   </script>
 </body>
 </html>
