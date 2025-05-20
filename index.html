@@ -12,7 +12,6 @@
       margin: 0;
     }
     .countdown-container {
-      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -30,7 +29,6 @@
       font-size: 6vw;
       font-weight: 900;
       color: #c5ea76;
-      /* half-width black outline */
       -webkit-text-stroke: 0.5px #000000;
       text-shadow:
          0.5px  0.5px 0 #000000,
@@ -97,8 +95,7 @@
 
   <script>
     // Countdown to June 14
-    const year   = new Date().getFullYear();
-    const target = new Date(year, 5, 14, 0, 0, 0);
+    const target = new Date(new Date().getFullYear(), 5, 14);
 
     function updateCountdown() {
       const diff = Math.max(0, target - new Date());
@@ -117,28 +114,33 @@
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
-    // Gold burst confetti
-    function burstConfetti() {
-      confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700'], gravity: 0.6 });
-      confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700'], gravity: 0.6 });
-    }
-    burstConfetti();
-    setInterval(burstConfetti, 3000);
-
-    // Continuous red rain confetti
-    function rainRedConfetti() {
+    // Continuous rain of larger gold and red confetti
+    function rainConfetti() {
+      // Gold confetti
       confetti({
-        particleCount: 20,
+        particleCount: 12,
         angle: 90,
-        spread: 40,
+        spread: 140,
         origin: { x: Math.random(), y: 0 },
-        colors: ['#E63946'], // red confetti
-        gravity: 0.3,
-        scalar: 0.8,
-        drift: 0.5
+        colors: ['#FFD700'],
+        gravity: 1,
+        ticks: 400,
+        scalar: 2.1
+      });
+      // Red confetti
+      confetti({
+        particleCount: 12,
+        angle: 90,
+        spread: 140,
+        origin: { x: Math.random(), y: 0 },
+        colors: ['#E63946'],
+        gravity: 1,
+        ticks: 400,
+        scalar: 2.1
       });
     }
-    setInterval(rainRedConfetti, 100);
+    // Rain frequently to fill full height
+    setInterval(rainConfetti, 80);
   </script>
 </body>
 </html>
