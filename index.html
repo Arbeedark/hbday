@@ -8,38 +8,32 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
+      width: 100%; height: 100%; margin: 0;
       background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
       overflow: hidden;
     }
     canvas {
       position: fixed !important;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: 0;
     }
     .wrapper {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+    /* your 800×600 “design” */
     .countdown-container {
-      width: 800px;
-      height: 600px;
-      transform-origin: center center;
-      transform: scale(var(--scale, 1));
+      width: 800px; height: 600px;
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       translate: -50% -50%;
+      transform-origin: center center;
+      transform: scale(var(--scale,1));
       background: transparent;
       color: #fff;
       font-family: Arial, sans-serif;
@@ -53,23 +47,23 @@
       align-items: center;
     }
     .headline {
-      font-size: clamp(24px, 10vmin, 96px);
+      font-size: clamp(24px,10vmin,96px);
       font-weight: 900;
       color: #c5ea76;
-      -webkit-text-stroke: 0.5px #000;
+      -webkit-text-stroke: .5px #000;
       text-shadow:
-         0.5px  0.5px 0 #000,
-        -0.5px  0.5px 0 #000,
-         0.5px -0.5px 0 #000,
-        -0.5px -0.5px 0 #000;
+         .5px  .5px 0 #000,
+        -.5px  .5px 0 #000,
+         .5px -.5px 0 #000,
+        -.5px -.5px 0 #000;
       margin-bottom: 1.5rem;
       text-transform: uppercase;
-      letter-spacing: 0.5vmin;
+      letter-spacing: .5vmin;
     }
     .timer {
       display: flex;
       gap: 2vmin;
-      font-size: clamp(18px, 8vmin, 64px);
+      font-size: clamp(18px,8vmin,64px);
       font-weight: bold;
     }
     .time-segment {
@@ -77,14 +71,12 @@
       flex-direction: column;
       align-items: center;
     }
-    .time-value {
-      font-size: clamp(32px, 12vmin, 128px);
-    }
+    .time-value { font-size: clamp(32px,12vmin,128px); }
     .time-label {
-      font-size: clamp(14px, 4vmin, 32px);
+      font-size: clamp(14px,4vmin,32px);
       text-transform: uppercase;
-      margin-top: 0.5rem;
-      letter-spacing: 0.5vmin;
+      margin-top: .5rem;
+      letter-spacing: .5vmin;
     }
   </style>
 </head>
@@ -114,21 +106,19 @@
   </div>
 
   <script>
+    // 1) Countdown logic
     const target = new Date(new Date().getFullYear(), 5, 14);
-
     function updateCountdown() {
-      const now = new Date();
-      const diff = Math.max(0, target - now);
-      const s = Math.floor((diff / 1000) % 60);
-      const m = Math.floor((diff / (1000 * 60)) % 60);
-      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-
+      const now = new Date(),
+            diff = Math.max(0, target - now),
+            s = Math.floor(diff/1000%60),
+            m = Math.floor(diff/60000%60),
+            h = Math.floor(diff/3600000%24),
+            d = Math.floor(diff/86400000);
       document.getElementById('days').textContent    = d;
-      document.getElementById('hours').textContent   = String(h).padStart(2, '0');
-      document.getElementById('minutes').textContent = String(m).padStart(2, '0');
-      document.getElementById('seconds').textContent = String(s).padStart(2, '0');
-
+      document.getElementById('hours').textContent   = String(h).padStart(2,'0');
+      document.getElementById('minutes').textContent = String(m).padStart(2,'0');
+      document.getElementById('seconds').textContent = String(s).padStart(2,'0');
       if (diff === 0) {
         clearInterval(countdownInterval);
         clearInterval(confettiInterval);
@@ -137,31 +127,28 @@
     const countdownInterval = setInterval(updateCountdown, 1000);
     updateCountdown();
 
+    // 2) Confetti
     function rainConfetti() {
       [{color:'#FFD700'},{color:'#E63946'}].forEach(cfg=>{
-        confetti({
-          particleCount: 8,
-          angle: 90,
-          spread: 140,
-          origin: { x: Math.random(), y: 0 },
-          colors: [cfg.color],
-          gravity: 1,
-          ticks: 400,
-          scalar: 1.176
-        });
+        confetti({ particleCount:8, angle:90, spread:140,
+                   origin:{x:Math.random(),y:0},
+                   colors:[cfg.color], gravity:1,
+                   ticks:400, scalar:1.176 });
       });
     }
     rainConfetti();
-    const confettiInterval = setInterval(rainConfetti, 80);
+    const confettiInterval = setInterval(rainConfetti,80);
 
+    // 3) ***New*** – scale so the 800×600 box occupies 40% of the iframe
     function updateScale() {
-      const wrapper = document.querySelector('.wrapper');
-      const box     = document.querySelector('.countdown-container');
-      const w       = wrapper.clientWidth;
-      const h       = wrapper.clientHeight;
-      // clamp to max scale = 1
-      const scale   = Math.min(1, w / 800, h / 600);
-      box.style.setProperty('--scale', scale);
+      const w = document.querySelector('.wrapper').clientWidth;
+      const h = document.querySelector('.wrapper').clientHeight;
+      // compute the factor that makes 800px → 40% of w (and 600px → 40% of h)
+      const scaleX = (w * 0.4) / 800;
+      const scaleY = (h * 0.4) / 600;
+      const scale  = Math.min(scaleX, scaleY);
+      document.querySelector('.countdown-container')
+              .style.setProperty('--scale', scale);
     }
     window.addEventListener('resize', updateScale);
     updateScale();
