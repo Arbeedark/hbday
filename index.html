@@ -7,7 +7,6 @@
   <!-- confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
-    /* full-bleed gradient behind everything */
     html, body {
       width: 100%;
       height: 100%;
@@ -15,8 +14,6 @@
       background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
       overflow: hidden;
     }
-
-    /* confetti canvas behind text */
     canvas {
       position: fixed !important;
       top: 0;
@@ -26,7 +23,6 @@
       pointer-events: none;
       z-index: 0;
     }
-
     .wrapper {
       position: relative;
       width: 100%;
@@ -35,8 +31,6 @@
       justify-content: center;
       align-items: center;
     }
-
-    /* transparent container that we scale */
     .countdown-container {
       width: 800px;
       height: 600px;
@@ -46,7 +40,6 @@
       top: 50%;
       left: 50%;
       translate: -50% -50%;
-      /* remove its own background so only the body’s gradient shows */
       background: transparent;
       color: #fff;
       font-family: Arial, sans-serif;
@@ -59,7 +52,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .headline {
       font-size: clamp(24px, 10vmin, 96px);
       font-weight: 900;
@@ -74,24 +66,20 @@
       text-transform: uppercase;
       letter-spacing: 0.5vmin;
     }
-
     .timer {
       display: flex;
       gap: 2vmin;
       font-size: clamp(18px, 8vmin, 64px);
       font-weight: bold;
     }
-
     .time-segment {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     .time-value {
       font-size: clamp(32px, 12vmin, 128px);
     }
-
     .time-label {
       font-size: clamp(14px, 4vmin, 32px);
       text-transform: uppercase;
@@ -126,7 +114,6 @@
   </div>
 
   <script>
-    // Countdown target
     const target = new Date(new Date().getFullYear(), 5, 14);
 
     function updateCountdown() {
@@ -150,7 +137,6 @@
     const countdownInterval = setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Confetti
     function rainConfetti() {
       [{color:'#FFD700'},{color:'#E63946'}].forEach(cfg=>{
         confetti({
@@ -168,13 +154,13 @@
     rainConfetti();
     const confettiInterval = setInterval(rainConfetti, 80);
 
-    // Fit & scale container to iframe
     function updateScale() {
       const wrapper = document.querySelector('.wrapper');
       const box     = document.querySelector('.countdown-container');
       const w       = wrapper.clientWidth;
       const h       = wrapper.clientHeight;
-      const scale   = Math.min(w / 800, h / 600);
+      // clamp to max scale = 1
+      const scale   = Math.min(1, w / 800, h / 600);
       box.style.setProperty('--scale', scale);
     }
     window.addEventListener('resize', updateScale);
