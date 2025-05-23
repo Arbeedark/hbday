@@ -7,7 +7,7 @@
   <!-- confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
-    /* Ensure confetti canvas is behind text */
+    /* full-bleed canvas behind everything */
     canvas {
       position: fixed !important;
       top: 0;
@@ -17,95 +17,118 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    /* make the iframe’s inner html/body fill its space */
     html, body {
+      width: 100%;
       height: 100%;
       margin: 0;
     }
-    .countdown-container {
+
+    /* wrapper to center & scale */
+    .wrapper {
       position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* “design size” of 800×600, then scale up/down */
+    .countdown-container {
+      width: 800px;
+      height: 600px;
+      transform-origin: center center;
+      /* this custom property is set by JS */
+      transform: scale(var(--scale, 1));
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      /* move our 800×600 box into exact center */
+      translate: -50% -50%;
+      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 20px;
       z-index: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
-      color: #FFFFFF;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      height: 100%;
-      overflow: hidden;
-      padding: 20px;
-      box-sizing: border-box;
     }
+
     .headline {
-      font-size: 6vw;
+      /* clamp() keeps it from ever getting too big or too small */
+      font-size: clamp(24px, 10vmin, 96px);
       font-weight: 900;
       color: #c5ea76;
-      -webkit-text-stroke: 0.5px #000000;
+      -webkit-text-stroke: 0.5px #000;
       text-shadow:
-         0.5px  0.5px 0 #000000,
-        -0.5px  0.5px 0 #000000,
-         0.5px -0.5px 0 #000000,
-        -0.5px -0.5px 0 #000000;
+         0.5px  0.5px 0 #000,
+        -0.5px  0.5px 0 #000,
+         0.5px -0.5px 0 #000,
+        -0.5px -0.5px 0 #000;
       margin-bottom: 1.5rem;
       text-transform: uppercase;
-      letter-spacing: 4px;
+      letter-spacing: 0.5vmin;
     }
+
     .timer {
       display: flex;
-      gap: 2rem;
-      font-size: 4vw;
+      gap: 2vmin;
+      font-size: clamp(18px, 8vmin, 64px);
       font-weight: bold;
     }
+
     .time-segment {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     .time-value {
-      font-size: 6vw;
+      font-size: clamp(32px, 12vmin, 128px);
     }
+
     .time-label {
-      font-size: 2vw;
+      font-size: clamp(14px, 4vmin, 32px);
       text-transform: uppercase;
       margin-top: 0.5rem;
-      letter-spacing: 1px;
-    }
-    @media (max-width: 600px) {
-      .headline {
-        font-size: 12vw;
-        letter-spacing: 2px;
-      }
-      .timer { font-size: 8vw; gap: 1rem; }
-      .time-value { font-size: 10vw; }
-      .time-label { font-size: 4vw; }
+      letter-spacing: 0.5vmin;
     }
   </style>
 </head>
 <body>
-  <div class="countdown-container">
-    <div class="headline">H&amp;B Wellness Day</div>
-    <div class="timer" id="timer">
-      <div class="time-segment">
-        <div class="time-value" id="days">0</div>
-        <div class="time-label">Days</div>
-      </div>
-      <div class="time-segment">
-        <div class="time-value" id="hours">00</div>
-        <div class="time-label">Hours</div>
-      </div>
-      <div class="time-segment">
-        <div class="time-value" id="minutes">00</div>
-        <div class="time-label">Minutes</div>
-      </div>
-      <div class="time-segment">
-        <div class="time-value" id="seconds">00</div>
-        <div class="time-label">Seconds</div>
+  <div class="wrapper">
+    <div class="countdown-container">
+      <div class="headline">H&amp;B Wellness Day</div>
+      <div class="timer" id="timer">
+        <div class="time-segment">
+          <div class="time-value" id="days">0</div>
+          <div class="time-label">Days</div>
+        </div>
+        <div class="time-segment">
+          <div class="time-value" id="hours">00</div>
+          <div class="time-label">Hours</div>
+        </div>
+        <div class="time-segment">
+          <div class="time-value" id="minutes">00</div>
+          <div class="time-label">Minutes</div>
+        </div>
+        <div class="time-segment">
+          <div class="time-value" id="seconds">00</div>
+          <div class="time-label">Seconds</div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
+    // 1) Set up countdown target
     const target = new Date(new Date().getFullYear(), 5, 14);
 
     function updateCountdown() {
@@ -126,32 +149,39 @@
         clearInterval(confettiInterval);
       }
     }
-    // Start countdown
-    updateCountdown();
     const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
 
-    // Continuous rain of confetti, 30% fewer and 30% smaller
+    // 2) Confetti
     function rainConfetti() {
-      const configs = [
-        { color: '#FFD700' },
-        { color: '#E63946' }
-      ];
-      configs.forEach(cfg => {
+      [{color:'#FFD700'},{color:'#E63946'}].forEach(cfg=>{
         confetti({
-          particleCount: 8,          // reduced by 30% from 12 → 8
+          particleCount: 8,
           angle: 90,
           spread: 140,
           origin: { x: Math.random(), y: 0 },
           colors: [cfg.color],
           gravity: 1,
           ticks: 400,
-          scalar: 1.176          // 30% smaller from 1.68 → ~1.176
+          scalar: 1.176
         });
       });
     }
-    // Start immediately and run until countdown ends
     rainConfetti();
     const confettiInterval = setInterval(rainConfetti, 80);
+
+    // 3) Measure & scale to fit the iframe
+    function updateScale() {
+      const wrapper = document.querySelector('.wrapper');
+      const box     = document.querySelector('.countdown-container');
+      const w       = wrapper.clientWidth;
+      const h       = wrapper.clientHeight;
+      // original design is 800×600
+      const scale   = Math.min(w / 800, h / 600);
+      box.style.setProperty('--scale', scale);
+    }
+    window.addEventListener('resize', updateScale);
+    updateScale();
   </script>
 </body>
 </html>
