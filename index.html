@@ -7,7 +7,16 @@
   <!-- confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
-    /* full-bleed canvas behind everything */
+    /* full-bleed gradient behind everything */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
+      overflow: hidden;
+    }
+
+    /* confetti canvas behind text */
     canvas {
       position: fixed !important;
       top: 0;
@@ -18,37 +27,27 @@
       z-index: 0;
     }
 
-    /* make the iframe’s inner html/body fill its space */
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-    }
-
-    /* wrapper to center & scale */
     .wrapper {
       position: relative;
       width: 100%;
       height: 100%;
-      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* “design size” of 800×600, then scale up/down */
+    /* transparent container that we scale */
     .countdown-container {
       width: 800px;
       height: 600px;
       transform-origin: center center;
-      /* this custom property is set by JS */
       transform: scale(var(--scale, 1));
       position: absolute;
       top: 50%;
       left: 50%;
-      /* move our 800×600 box into exact center */
       translate: -50% -50%;
-      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
+      /* remove its own background so only the body’s gradient shows */
+      background: transparent;
       color: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
@@ -62,7 +61,6 @@
     }
 
     .headline {
-      /* clamp() keeps it from ever getting too big or too small */
       font-size: clamp(24px, 10vmin, 96px);
       font-weight: 900;
       color: #c5ea76;
@@ -128,7 +126,7 @@
   </div>
 
   <script>
-    // 1) Set up countdown target
+    // Countdown target
     const target = new Date(new Date().getFullYear(), 5, 14);
 
     function updateCountdown() {
@@ -152,7 +150,7 @@
     const countdownInterval = setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // 2) Confetti
+    // Confetti
     function rainConfetti() {
       [{color:'#FFD700'},{color:'#E63946'}].forEach(cfg=>{
         confetti({
@@ -170,13 +168,12 @@
     rainConfetti();
     const confettiInterval = setInterval(rainConfetti, 80);
 
-    // 3) Measure & scale to fit the iframe
+    // Fit & scale container to iframe
     function updateScale() {
       const wrapper = document.querySelector('.wrapper');
       const box     = document.querySelector('.countdown-container');
       const w       = wrapper.clientWidth;
       const h       = wrapper.clientHeight;
-      // original design is 800×600
       const scale   = Math.min(w / 800, h / 600);
       box.style.setProperty('--scale', scale);
     }
