@@ -1,157 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>H&amp;B Wellness Day</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- confetti library -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>H&B Wellness Day Countdown</title>
   <style>
-    html, body {
-      width: 100%; height: 100%; margin: 0;
-      background: radial-gradient(circle at center, #2E5A3F 0%, #1F3D2E 100%);
-      overflow: hidden;
+    :root {
+      /* your brand colours */
+      --bg-color: #005335;
+      --title-color: #C5EA76;
+      --count-color: #EEF8EF;
     }
-    canvas {
-      position: fixed !important;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .wrapper {
-      position: relative;
-      width: 100%; height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    /* your 800×600 “design” */
-    .countdown-container {
-      width: 800px; height: 600px;
-      position: absolute;
-      top: 50%; left: 50%;
-      translate: -50% -50%;
-      transform-origin: center center;
-      transform: scale(var(--scale,1));
-      background: transparent;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
+    *, *::before, *::after {
       box-sizing: border-box;
-      padding: 20px;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
     }
-    .headline {
-      font-size: clamp(24px,10vmin,96px);
-      font-weight: 900;
-      color: #c5ea76;
-      -webkit-text-stroke: .5px #000;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .timer-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      text-align: center;
+      overflow: hidden;
+      background-color: var(--bg-color);
+      border-radius: 1rem;
+    }
+    .timer-container h1 {
+      margin: 0 0 1rem;
+      color: var(--title-color);
+      /* thin black outline */
       text-shadow:
-         .5px  .5px 0 #000,
-        -.5px  .5px 0 #000,
-         .5px -.5px 0 #000,
-        -.5px -.5px 0 #000;
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-      letter-spacing: .5vmin;
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+      font-size: clamp(1.5rem, 5vw, 3rem);
     }
-    .timer {
-      display: flex;
-      gap: 2vmin;
-      font-size: clamp(18px,8vmin,64px);
+    .timer-container #countdown {
+      color: var(--count-color);
+      /* thin black outline */
+      text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
       font-weight: bold;
+      font-size: clamp(2rem, 6vw, 4rem);
     }
-    .time-segment {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .time-value { font-size: clamp(32px,12vmin,128px); }
-    .time-label {
-      font-size: clamp(14px,4vmin,32px);
-      text-transform: uppercase;
-      margin-top: .5rem;
-      letter-spacing: .5vmin;
+    canvas#confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="countdown-container">
-      <div class="headline">H&amp;B Wellness Day</div>
-      <div class="timer" id="timer">
-        <div class="time-segment">
-          <div class="time-value" id="days">0</div>
-          <div class="time-label">Days</div>
-        </div>
-        <div class="time-segment">
-          <div class="time-value" id="hours">00</div>
-          <div class="time-label">Hours</div>
-        </div>
-        <div class="time-segment">
-          <div class="time-value" id="minutes">00</div>
-          <div class="time-label">Minutes</div>
-        </div>
-        <div class="time-segment">
-          <div class="time-value" id="seconds">00</div>
-          <div class="time-label">Seconds</div>
-        </div>
-      </div>
-    </div>
+  <div class="timer-container">
+    <h1>H&amp;B Wellness Day</h1>
+    <div id="countdown">Loading…</div>
+    <canvas id="confetti-canvas"></canvas>
   </div>
 
   <script>
-    // 1) Countdown logic
-    const target = new Date(new Date().getFullYear(), 5, 14);
+    // ======= Countdown =======
+    const targetDate = new Date('2025-06-14T00:00:00');
+    const countdownEl = document.getElementById('countdown');
+
     function updateCountdown() {
-      const now = new Date(),
-            diff = Math.max(0, target - now),
-            s = Math.floor(diff/1000%60),
-            m = Math.floor(diff/60000%60),
-            h = Math.floor(diff/3600000%24),
-            d = Math.floor(diff/86400000);
-      document.getElementById('days').textContent    = d;
-      document.getElementById('hours').textContent   = String(h).padStart(2,'0');
-      document.getElementById('minutes').textContent = String(m).padStart(2,'0');
-      document.getElementById('seconds').textContent = String(s).padStart(2,'0');
-      if (diff === 0) {
-        clearInterval(countdownInterval);
-        clearInterval(confettiInterval);
+      const now = new Date();
+      const diff = targetDate - now;
+      if (diff <= 0) {
+        countdownEl.textContent = "It's H&B Wellness Day!";
+        return;
       }
+      const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours   = Math.floor(diff / (1000 * 60 * 60) % 24);
+      const minutes = Math.floor(diff / (1000 * 60) % 60);
+      const seconds = Math.floor(diff / 1000 % 60);
+      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
-    const countdownInterval = setInterval(updateCountdown, 1000);
+
+    // run immediately, then every second
     updateCountdown();
+    setInterval(updateCountdown, 1000);
 
-    // 2) Confetti
-    function rainConfetti() {
-      [{color:'#FFD700'},{color:'#E63946'}].forEach(cfg=>{
-        confetti({ particleCount:8, angle:90, spread:140,
-                   origin:{x:Math.random(),y:0},
-                   colors:[cfg.color], gravity:1,
-                   ticks:400, scalar:1.176 });
-      });
-    }
-    rainConfetti();
-    const confettiInterval = setInterval(rainConfetti,80);
+    // ======= Confetti =======
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const particles = [];
+    // richer gold & bold red
+    const colors = ['#FFD700', '#E02D27'];
 
-    // 3) ***New*** – scale so the 800×600 box occupies 40% of the iframe
-    function updateScale() {
-      const w = document.querySelector('.wrapper').clientWidth;
-      const h = document.querySelector('.wrapper').clientHeight;
-      // compute the factor that makes 800px → 40% of w (and 600px → 40% of h)
-      const scaleX = (w * 0.4) / 800;
-      const scaleY = (h * 0.4) / 600;
-      const scale  = Math.min(scaleX, scaleY);
-      document.querySelector('.countdown-container')
-              .style.setProperty('--scale', scale);
+    function resize() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
     }
-    window.addEventListener('resize', updateScale);
-    updateScale();
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createParticle() {
+      return {
+        x: Math.random() * W,
+        y: -10,
+        size: Math.random() * 8 + 4,
+        vx: Math.random() * 4 - 2,
+        vy: Math.random() * 3 + 2,
+        angle: Math.random() * 2 * Math.PI,
+        va: Math.random() * 0.1 - 0.05,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      };
+    }
+
+    // spawn confetti every 200ms
+    setInterval(() => {
+      for (let i = 0; i < 5; i++) particles.push(createParticle());
+    }, 200);
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.angle += p.va;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, 0, p.size, p.size * 0.4);
+        ctx.restore();
+        if (p.y > H + 20) particles.splice(i, 1), i--;
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
   </script>
 </body>
 </html>
