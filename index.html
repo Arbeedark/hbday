@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>H&B Wellness Day Widget</title>
   <style>
-    /* -----------------------------------------------------------------------------
-       Reset and make the body fill the iframe, then re-introduce the original gradient
-       ----------------------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------------
+       1) Reset and give <body> the original green‐to‐black gradient background 
+       ----------------------------------------------------------------------------------- */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -16,41 +16,44 @@
 
     html, body {
       width: 100%;
-      height: 100%;
-      overflow: hidden;
-      /* ← ORIGINAL GREEN-TO-BLACK RADIAL GRADIENT */
+      /* We remove height:100% here so that body can grow naturally if content is taller than the iframe */
+      min-height: 100%;
       background: radial-gradient(
         circle at center,
         #0e5433 0%,
         #000000 100%
       );
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;  /* center the .timer box horizontally */
-      align-items: center;      /* center the .timer box vertically */
+      /* Remove flex‐centering so that the widget sits at the top */
+      display: block;
+      overflow-y: auto;  /* Allow scrolling inside the iframe if the container is too short */
     }
 
-    /* -----------------------------------------------------------------------------
-       The “boxed” container: exactly the same as before
-       ----------------------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------------
+       2) The “boxed” container (.timer) is exactly the same as before
+       ----------------------------------------------------------------------------------- */
     .timer {
       position: relative;
       text-align: center;
       background: rgba(0, 0, 0, 0.25);   /* semi-transparent black behind text */
       padding: 2rem 1rem;
       border-radius: 1rem;
-      /* fluid width: never narrower than 300px, never wider than 600px */
+      /* fluid width—never narrower than 300px, never wider than 600px */
       width: clamp(300px, 80%, 600px);
+      /* center the box horizontally within the iframe/body */
+      margin: 2rem auto; 
     }
 
-    /* Heading: “H&B WELLNESS DAY” */
+    /* -----------------------------------------------------------------------------------
+       3) Heading (“H&B WELLNESS DAY”)
+       ----------------------------------------------------------------------------------- */
     .timer h1 {
       color: #FFFFFF;                   /* white text */
-      font-weight: 900;                 /* extra-bold */
+      font-weight: 900;                 /* extra‐bold */
       text-transform: uppercase;        /* all caps */
       font-size: clamp(2.16rem, 7vw, 4.32rem); /* responsive sizing */
       margin-bottom: 0.5em;
-      /* gold glow + subtle black outline */
+      /* gold glow + black outline */
       text-shadow:
         0 0 8px rgba(255, 215, 0, 0.6),
         -1px -1px 0 #000,
@@ -59,21 +62,22 @@
          1px  1px 0 #000;
     }
 
-    /* The countdown panel */
+    /* -----------------------------------------------------------------------------------
+       4) Countdown panel
+       ----------------------------------------------------------------------------------- */
     .countdown-panel {
       background: rgba(0, 0, 0, 0.45);  /* slightly more opaque black */
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      /* soft gold glow around the panel */
+      /* soft gold glow around panel */
       box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
       margin: 0 auto 1rem auto;        /* center + 1rem bottom margin */
       width: 100%;
       text-align: center;
     }
 
-    /* Countdown numbers + unit letters */
     #countdown {
-      color: #FFFFFF;                   /* bright white */
+      color: #FFFFFF;                   /* bright white digits */
       text-shadow:
         0 0 4px rgba(0, 0, 0, 0.6),
         -1px -1px 0 #000,
@@ -83,18 +87,20 @@
       font-weight: 700;                  /* semi-bold */
       font-size: clamp(2.4rem, 7vw, 4.8rem); /* responsive sizing */
       user-select: none;
-      white-space: nowrap;               /* keep everything inline */
+      white-space: nowrap;               /* keep everything in one line */
     }
     .count-unit {
       display: inline-block;
-      font-size: 0.4em;       /* small superscript letter */
+      font-size: 0.4em;       /* small superscript for D/H/M/S */
       vertical-align: super;
       margin-left: 0.1em;
       text-transform: uppercase;
       opacity: 0.85;
     }
 
-    /* “FOR MORE INFO – CLICK HERE!” button */
+    /* -----------------------------------------------------------------------------------
+       5) “FOR MORE INFO – CLICK HERE!” button
+       ----------------------------------------------------------------------------------- */
     .info-button {
       display: block;
       background-color: #E53935;    /* promo red */
@@ -102,14 +108,14 @@
       border: none;
       padding: 0.9em 2em;
       font-size: clamp(1rem, 3vw, 1.5rem); /* responsive sizing */
-      font-weight: 900;             /* extra-bold */
+      font-weight: 900;              /* extra‐bold */
       border-radius: 0.75em;
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
       transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      width: 100%;                  /* fill same width as countdown panel */
+      width: 100%;                   /* fill same width as countdown panel */
       text-align: center;
       margin: 0 auto;
     }
@@ -129,7 +135,7 @@
       <div id="countdown">Loading…</div>
     </div>
 
-    <!-- Button: opens in a new tab -->
+    <!-- Button (opens in new tab) -->
     <a href="https://www.thehbhub.com/?386"
        class="info-button"
        target="_blank"
@@ -140,7 +146,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Set the target date/time
+      // Set your target date/time here
       const targetDate = new Date('2025-06-14T00:00:00');
       const cd = document.getElementById('countdown');
 
@@ -166,7 +172,7 @@
           `<span>${s}</span><span class="count-unit">S</span>`;
       }
 
-      // Initial call + update every second
+      // First call immediately, then once per second
       updateCountdown();
       setInterval(updateCountdown, 1000);
     });
