@@ -3,24 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>H&B Wellness Day Countdown</title>
+  <title>H&B Wellness Day Widget</title>
   <style>
-    :root {
-      /* Background gradient: center #0e5433 → black at edges */
-      --bg-center: #0e5433;
-      --bg-edge:   #000000;
-
-      /* Countdown panel background (semi-transparent black) */
-      --panel-bg: rgba(0, 0, 0, 0.45);
-      /* White text for the countdown, with a faint black shadow for depth */
-      --count-text: #FFFFFF;
-      --count-shadow: rgba(0, 0, 0, 0.6);
-      /* Gold accent for panel border/glow */
-      --panel-gold: rgba(255, 215, 0, 0.6);
-      /* Promo red for the button */
-      --button-red: #E53935;
-    }
-
+    /* -----------------------------------------------------------------------------
+       Reset and make the body fill the iframe, then re-introduce the original gradient
+       ----------------------------------------------------------------------------- */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -28,38 +15,42 @@
     }
 
     html, body {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      /* Strong radial gradient: center #0e5433 to black at edges */
+      /* ← ORIGINAL GREEN-TO-BLACK RADIAL GRADIENT */
       background: radial-gradient(
         circle at center,
-        var(--bg-center) 0%,
-        var(--bg-edge) 100%
+        #0e5433 0%,
+        #000000 100%
       );
       font-family: Arial, sans-serif;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      justify-content: center;  /* center the .timer box horizontally */
+      align-items: center;      /* center the .timer box vertically */
     }
 
+    /* -----------------------------------------------------------------------------
+       The “boxed” container: exactly the same as before
+       ----------------------------------------------------------------------------- */
     .timer {
       position: relative;
       text-align: center;
-      /* Semi-transparent black overlay behind all text for contrast */
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.25);   /* semi-transparent black behind text */
       padding: 2rem 1rem;
       border-radius: 1rem;
+      /* fluid width: never narrower than 300px, never wider than 600px */
       width: clamp(300px, 80%, 600px);
     }
 
+    /* Heading: “H&B WELLNESS DAY” */
     .timer h1 {
-      color: #FFFFFF;                   /* White header */
-      font-weight: 900;                 /* Extra-bold */
-      text-transform: uppercase;        /* All caps */
-      font-size: clamp(2.16rem, 7vw, 4.32rem);
+      color: #FFFFFF;                   /* white text */
+      font-weight: 900;                 /* extra-bold */
+      text-transform: uppercase;        /* all caps */
+      font-size: clamp(2.16rem, 7vw, 4.32rem); /* responsive sizing */
       margin-bottom: 0.5em;
-      /* Gold glow behind header letters */
+      /* gold glow + subtle black outline */
       text-shadow:
         0 0 8px rgba(255, 215, 0, 0.6),
         -1px -1px 0 #000,
@@ -68,94 +59,67 @@
          1px  1px 0 #000;
     }
 
-    /* The panel around the countdown */
+    /* The countdown panel */
     .countdown-panel {
-      display: block;
-      background: var(--panel-bg);
+      background: rgba(0, 0, 0, 0.45);  /* slightly more opaque black */
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      /* Soft gold border/glow */
-      box-shadow: 0 0 12px var(--panel-gold);
-      margin: 0 auto 1rem auto;
+      /* soft gold glow around the panel */
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      margin: 0 auto 1rem auto;        /* center + 1rem bottom margin */
       width: 100%;
       text-align: center;
     }
 
-    .timer #countdown {
-      color: var(--count-text);         /* Bright white */
-      /* Subtle black shadow behind each digit for extra contrast */
+    /* Countdown numbers + unit letters */
+    #countdown {
+      color: #FFFFFF;                   /* bright white */
       text-shadow:
-        0 0 4px var(--count-shadow),
+        0 0 4px rgba(0, 0, 0, 0.6),
         -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
          1px  1px 0 #000;
-      font-weight: 700;                  /* Semi-bold */
-      font-size: clamp(2.4rem, 7vw, 4.8rem);
+      font-weight: 700;                  /* semi-bold */
+      font-size: clamp(2.4rem, 7vw, 4.8rem); /* responsive sizing */
       user-select: none;
-      /* Force everything on one line */
-      white-space: nowrap;
+      white-space: nowrap;               /* keep everything inline */
     }
-
-    /* Even smaller “unit” initials so entire text fits */
-    .timer .count-unit {
+    .count-unit {
       display: inline-block;
-      font-size: 0.4em;       /* smaller than before */
-      vertical-align: super;  /* align above baseline */
+      font-size: 0.4em;       /* small superscript letter */
+      vertical-align: super;
       margin-left: 0.1em;
       text-transform: uppercase;
       opacity: 0.85;
     }
 
-    /* Button styling: bold uppercase white text on promo red */
-    .timer .info-button {
+    /* “FOR MORE INFO – CLICK HERE!” button */
+    .info-button {
       display: block;
-      background-color: var(--button-red);
+      background-color: #E53935;    /* promo red */
       color: #FFFFFF;
       border: none;
       padding: 0.9em 2em;
-      font-size: clamp(1rem, 3vw, 1.5rem);
-      font-weight: 900;                 /* Extra-bold */
+      font-size: clamp(1rem, 3vw, 1.5rem); /* responsive sizing */
+      font-weight: 900;             /* extra-bold */
       border-radius: 0.75em;
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
       transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
-      /* Subtle drop shadow for emphasis */
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-
-      /* Ensure the button width matches the timer container */
-      width: 100%;
+      width: 100%;                  /* fill same width as countdown panel */
       text-align: center;
       margin: 0 auto;
     }
-    .timer .info-button:hover {
+    .info-button:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     }
-
-    /* Faint confetti-like speckle overlay */
-    body::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: radial-gradient(circle, rgba(255,215,0,0.1) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      opacity: 0.15;
-    }
-
-    canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
   </style>
 </head>
+
 <body>
   <div class="timer">
     <h1>H&amp;B WELLNESS DAY</h1>
@@ -165,22 +129,23 @@
       <div id="countdown">Loading…</div>
     </div>
 
-    <!-- Button placed fully beneath the countdown panel -->
-    <a href="https://www.thehbhub.com/?386" class="info-button" target="_blank" rel="noopener">
+    <!-- Button: opens in a new tab -->
+    <a href="https://www.thehbhub.com/?386"
+       class="info-button"
+       target="_blank"
+       rel="noopener">
       FOR MORE INFO – CLICK HERE!
     </a>
-
-    <canvas id="confetti-canvas"></canvas>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Countdown logic
+      // Set the target date/time
       const targetDate = new Date('2025-06-14T00:00:00');
       const cd = document.getElementById('countdown');
 
       function updateCountdown() {
-        const now = new Date();
+        const now  = new Date();
         const diff = targetDate - now;
 
         if (diff <= 0) {
@@ -188,71 +153,22 @@
           return;
         }
 
+        // Calculate days, hours, minutes, seconds
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / (1000 * 60)) % 60);
         const s = Math.floor((diff / 1000) % 60);
 
-        // Build HTML with number + initial unit labels
-        cd.innerHTML = 
+        cd.innerHTML =
           `<span>${d}</span><span class="count-unit">D</span> ` +
           `<span>${h}</span><span class="count-unit">H</span> ` +
           `<span>${m}</span><span class="count-unit">M</span> ` +
           `<span>${s}</span><span class="count-unit">S</span>`;
       }
 
+      // Initial call + update every second
       updateCountdown();
       setInterval(updateCountdown, 1000);
-
-      // Confetti script (unchanged)
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
-      let W, H;
-      const parts = [];
-      const colors = ['#FFD700', '#E02D27'];
-
-      function resize() {
-        W = canvas.width = canvas.offsetWidth;
-        H = canvas.height = canvas.offsetHeight;
-      }
-      window.addEventListener('resize', resize);
-      resize();
-
-      function makeParticle() {
-        return {
-          x: Math.random() * W,
-          y: -10,
-          size: Math.random() * 8 + 4,
-          vx: Math.random() * 4 - 2,
-          vy: Math.random() * 3 + 2,
-          angle: Math.random() * Math.PI * 2,
-          va: Math.random() * 0.1 - 0.05,
-          c: colors[Math.floor(Math.random() * colors.length)]
-        };
-      }
-
-      setInterval(() => {
-        for (let i = 0; i < 5; i++) parts.push(makeParticle());
-      }, 200);
-
-      function draw() {
-        ctx.clearRect(0, 0, W, H);
-        for (let i = 0; i < parts.length; i++) {
-          const p = parts[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          p.angle += p.va;
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.angle);
-          ctx.fillStyle = p.c;
-          ctx.fillRect(-p.size / 2, 0, p.size, p.size * 0.4);
-          ctx.restore();
-          if (p.y > H + 20) parts.splice(i--, 1);
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
     });
   </script>
 </body>
