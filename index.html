@@ -6,8 +6,7 @@
   <title>H&B Wellness Day Countdown</title>
   <style>
     :root {
-      --bg-color: #005335;
-      --title-color: #C5EA76;
+      --bg-color: #0e5433;  /* Page background */
       --count-color: #EEF8EF;
     }
     * {
@@ -29,24 +28,21 @@
       position: relative;
       text-align: center;
 
-      /* <-- ADD THESE FOUR LINES: */
+      /* Layout as a vertical column */
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      /* END ADD */
 
       width: 100%;
       height: 100%;
     }
     .timer h1 {
-      color: var(--title-color);
-      text-shadow:
-        -1px -1px 0 #000,
-         1px -1px 0 #000,
-        -1px  1px 0 #000,
-         1px  1px 0 #000;
-      font-size: clamp(1.5rem, 5vw, 3rem);
+      color: #FFFFFF;                   /* White text */
+      font-weight: 900;                 /* Extra-bold */
+      text-transform: uppercase;        /* All caps */
+      /* Increased by 20%: 1.5rem → 1.8rem, 5vw → 6vw, 3rem → 3.6rem */
+      font-size: clamp(1.8rem, 6vw, 3.6rem);
       margin-bottom: 0.5em;
     }
     .timer #countdown {
@@ -58,7 +54,33 @@
          1px  1px 0 #000;
       font-weight: bold;
       font-size: clamp(2rem, 6vw, 4rem);
+      /* Prevent selection of inner HTML spans wrapping units */
+      user-select: none;
     }
+    .timer #countdown .unit {
+      color: #FFFFFF;  /* Units back to white */
+      font-weight: bold;
+    }
+
+    /* Button styling: bold uppercase white text, black background */
+    .timer .info-button {
+      background-color: #000000;        /* Black background */
+      color: #FFFFFF;                   /* White text */
+      border: none;
+      padding: 0.75em 1.5em;
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      font-weight: 900;                 /* Make button text bolder */
+      border-radius: 0.5em;
+      text-transform: uppercase;
+      text-decoration: none;
+      margin-top: 1em;
+      cursor: pointer;
+      transition: transform 0.1s ease-in-out;
+    }
+    .timer .info-button:hover {
+      transform: scale(1.05);
+    }
+
     canvas {
       position: absolute;
       top: 0; left: 0;
@@ -70,8 +92,14 @@
 </head>
 <body>
   <div class="timer">
-    <h1>H&amp;B Wellness Day</h1>
+    <h1>H&amp;B WELLNESS DAY</h1>
     <div id="countdown">Loading…</div>
+
+    <!-- Button with uppercase white text, black background, and extra-bold font -->
+    <a href="https://www.thehbhub.com/?386" class="info-button" target="_blank" rel="noopener">
+      FOR MORE INFO – CLICK HERE!
+    </a>
+
     <canvas id="confetti-canvas"></canvas>
   </div>
 
@@ -91,7 +119,12 @@
         const h = Math.floor(diff / (1000*60*60) % 24);
         const m = Math.floor(diff / (1000*60) % 60);
         const s = Math.floor(diff / 1000 % 60);
-        cd.textContent = `${d}d ${h}h ${m}m ${s}s`;
+        // Insert spans around unit letters to apply unit color
+        cd.innerHTML =
+          `${d}<span class="unit">D</span> ` +
+          `${h}<span class="unit">H</span> ` +
+          `${m}<span class="unit">M</span> ` +
+          `${s}<span class="unit">S</span>`;
       }
       updateCountdown();
       setInterval(updateCountdown, 1000);
