@@ -6,79 +6,145 @@
   <title>H&B Wellness Day Countdown</title>
   <style>
     :root {
-      --bg-color: #0e5433;  /* Page background */
-      --count-color: #EEF8EF;
+      /* Background gradient: center #0e5433 → black at edges */
+      --bg-center: #0e5433;
+      --bg-edge:   #000000;
+
+      /* Countdown panel background (semi-transparent black) */
+      --panel-bg: rgba(0, 0, 0, 0.45);
+      /* White text for the countdown, with a faint black shadow for depth */
+      --count-text: #FFFFFF;
+      --count-shadow: rgba(0, 0, 0, 0.6);
+      /* Gold accent for panel border/glow */
+      --panel-gold: rgba(255, 215, 0, 0.6);
+      /* Promo red for the button */
+      --button-red: #E53935;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     html, body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background: var(--bg-color);
+      /* Strong radial gradient: center #0e5433 to black at edges */
+      background: radial-gradient(
+        circle at center,
+        var(--bg-center) 0%,
+        var(--bg-edge) 100%
+      );
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
     .timer {
       position: relative;
       text-align: center;
-
-      /* Layout as a vertical column */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      width: 100%;
-      height: 100%;
+      /* Semi-transparent black overlay behind all text for contrast */
+      background: rgba(0, 0, 0, 0.25);
+      padding: 2rem 1rem;
+      border-radius: 1rem;
+      width: clamp(300px, 80%, 600px);
     }
+
     .timer h1 {
-      color: #FFFFFF;                   /* White text */
+      color: #FFFFFF;                   /* White header */
       font-weight: 900;                 /* Extra-bold */
       text-transform: uppercase;        /* All caps */
-      /* Increased by 20%: 1.5rem → 1.8rem, 5vw → 6vw, 3rem → 3.6rem */
-      font-size: clamp(1.8rem, 6vw, 3.6rem);
+      font-size: clamp(2.16rem, 7vw, 4.32rem);
       margin-bottom: 0.5em;
-    }
-    .timer #countdown {
-      color: var(--count-color);
+      /* Gold glow behind header letters */
       text-shadow:
+        0 0 8px rgba(255, 215, 0, 0.6),
         -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
          1px  1px 0 #000;
-      font-weight: bold;
-      font-size: clamp(2rem, 6vw, 4rem);
-      /* Prevent selection of inner HTML spans wrapping units */
-      user-select: none;
-    }
-    .timer #countdown .unit {
-      color: #FFFFFF;  /* Units back to white */
-      font-weight: bold;
     }
 
-    /* Button styling: bold uppercase white text, black background */
+    /* The panel around the countdown */
+    .countdown-panel {
+      display: block;
+      background: var(--panel-bg);
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      /* Soft gold border/glow */
+      box-shadow: 0 0 12px var(--panel-gold);
+      margin: 0 auto 1rem auto;
+      width: 100%;
+      text-align: center;
+    }
+
+    .timer #countdown {
+      color: var(--count-text);         /* Bright white */
+      /* Subtle black shadow behind each digit for extra contrast */
+      text-shadow:
+        0 0 4px var(--count-shadow),
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+      font-weight: 700;                  /* Semi-bold */
+      font-size: clamp(2.4rem, 7vw, 4.8rem);
+      user-select: none;
+      /* Force everything on one line */
+      white-space: nowrap;
+    }
+
+    /* Even smaller “unit” initials so entire text fits */
+    .timer .count-unit {
+      display: inline-block;
+      font-size: 0.4em;       /* smaller than before */
+      vertical-align: super;  /* align above baseline */
+      margin-left: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    /* Button styling: bold uppercase white text on promo red */
     .timer .info-button {
-      background-color: #000000;        /* Black background */
-      color: #FFFFFF;                   /* White text */
+      display: block;
+      background-color: var(--button-red);
+      color: #FFFFFF;
       border: none;
-      padding: 0.75em 1.5em;
-      font-size: clamp(1rem, 3vw, 1.25rem);
-      font-weight: 900;                 /* Make button text bolder */
-      border-radius: 0.5em;
+      padding: 0.9em 2em;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 900;                 /* Extra-bold */
+      border-radius: 0.75em;
       text-transform: uppercase;
       text-decoration: none;
-      margin-top: 1em;
       cursor: pointer;
-      transition: transform 0.1s ease-in-out;
+      transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+      /* Subtle drop shadow for emphasis */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+
+      /* Ensure the button width matches the timer container */
+      width: 100%;
+      text-align: center;
+      margin: 0 auto;
     }
     .timer .info-button:hover {
       transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Faint confetti-like speckle overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle, rgba(255,215,0,0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      opacity: 0.15;
     }
 
     canvas {
@@ -93,9 +159,13 @@
 <body>
   <div class="timer">
     <h1>H&amp;B WELLNESS DAY</h1>
-    <div id="countdown">Loading…</div>
 
-    <!-- Button with uppercase white text, black background, and extra-bold font -->
+    <!-- Countdown panel -->
+    <div class="countdown-panel">
+      <div id="countdown">Loading…</div>
+    </div>
+
+    <!-- Button placed fully beneath the countdown panel -->
     <a href="https://www.thehbhub.com/?386" class="info-button" target="_blank" rel="noopener">
       FOR MORE INFO – CLICK HERE!
     </a>
@@ -105,36 +175,42 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Countdown
+      // Countdown logic
       const targetDate = new Date('2025-06-14T00:00:00');
       const cd = document.getElementById('countdown');
+
       function updateCountdown() {
         const now = new Date();
         const diff = targetDate - now;
+
         if (diff <= 0) {
           cd.textContent = "It's H&B Wellness Day!";
           return;
         }
-        const d = Math.floor(diff / (1000*60*60*24));
-        const h = Math.floor(diff / (1000*60*60) % 24);
-        const m = Math.floor(diff / (1000*60) % 60);
-        const s = Math.floor(diff / 1000 % 60);
-        // Insert spans around unit letters to apply unit color
-        cd.innerHTML =
-          `${d}<span class="unit">D</span> ` +
-          `${h}<span class="unit">H</span> ` +
-          `${m}<span class="unit">M</span> ` +
-          `${s}<span class="unit">S</span>`;
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        // Build HTML with number + initial unit labels
+        cd.innerHTML = 
+          `<span>${d}</span><span class="count-unit">D</span> ` +
+          `<span>${h}</span><span class="count-unit">H</span> ` +
+          `<span>${m}</span><span class="count-unit">M</span> ` +
+          `<span>${s}</span><span class="count-unit">S</span>`;
       }
+
       updateCountdown();
       setInterval(updateCountdown, 1000);
 
-      // Confetti
+      // Confetti script (unchanged)
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
       let W, H;
       const parts = [];
-      const colors = ['#FFD700','#E02D27'];
+      const colors = ['#FFD700', '#E02D27'];
+
       function resize() {
         W = canvas.width = canvas.offsetWidth;
         H = canvas.height = canvas.offsetHeight;
@@ -155,7 +231,6 @@
         };
       }
 
-      // generate some confetti regularly
       setInterval(() => {
         for (let i = 0; i < 5; i++) parts.push(makeParticle());
       }, 200);
@@ -164,12 +239,14 @@
         ctx.clearRect(0, 0, W, H);
         for (let i = 0; i < parts.length; i++) {
           const p = parts[i];
-          p.x += p.vx; p.y += p.vy; p.angle += p.va;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.angle += p.va;
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate(p.angle);
           ctx.fillStyle = p.c;
-          ctx.fillRect(-p.size/2, 0, p.size, p.size * 0.4);
+          ctx.fillRect(-p.size / 2, 0, p.size, p.size * 0.4);
           ctx.restore();
           if (p.y > H + 20) parts.splice(i--, 1);
         }
