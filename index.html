@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>H&B Wellness Day (Auto‐Scaling & Centered)</title>
+  <title>H&B Wellness Day (No Outer Box)</title>
   <style>
-    /* ----------------------------------------------------------------
-       1) RESET + FULL‐SCREEN GREEN‐TO‐BLACK RADIAL GRADIENT BACKGROUND
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       1) RESET + FULL-SCREEN GREEN-TO-BLACK RADIAL GRADIENT BACKGROUND
+       ----------------------------------------------------------------------------- */
     * {
       margin: 0;
       padding: 0;
@@ -18,69 +18,88 @@
       height: 100%;
       background: radial-gradient(circle at center, #0e5433 0%, #000000 100%);
       font-family: Arial, sans-serif;
-      overflow: hidden;  /* we will scale rather than scroll */
+      overflow: hidden; /* we will scale rather than scroll */
     }
 
-    /* ----------------------------------------------------------------
-       2) WRAPPER that fills the iframe and flex‐centers its content
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       2) WRAPPER that fills the iframe and flex-centers its content
+       ----------------------------------------------------------------------------- */
     #wrapper {
+      position: relative;
       width: 100%;
       height: 100%;
       display: flex;
-      justify-content: center;  /* horizontal centering */
-      align-items: center;      /* vertical centering */
-      overflow: hidden;         /* no scrollbars; we shrink if it doesn’t fit */
+      justify-content: center; /* horizontal centering */
+      align-items: center;     /* vertical centering */
+      overflow: hidden;        /* no scrollbars; shrink if needed */
     }
 
-    /* ----------------------------------------------------------------
-       3) THE “.timer” BOX (HEADER + COUNTDOWN + BUTTON)
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       3) CONFETTI CANVAS (behind everything)
+       ----------------------------------------------------------------------------- */
+    #confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* clicks go through */
+      z-index: 0;
+    }
+
+    /* -----------------------------------------------------------------------------
+       4) “.timer” CONTAINER (now fully transparent—no padding or background)
+       
+       We remove all background/padding from this container; 
+       only the countdown‐panel and button carry their own backgrounds.
+       ---------------------------------------------------------------------------- */
     .timer {
       position: relative;
+      z-index: 1;            /* sit above confetti */
       text-align: center;
-      background: rgba(0, 0, 0, 0.25); /* semi‐transparent black overlay */
-      border-radius: 1rem;
-      padding: 2rem 1rem;
-      /* Pick a “base” width. We will scale up/down from here. */
-      width: 500px;
-      /* IMPORTANT: scale around the center so it remains centered in #wrapper */
+      background: transparent;
+      padding: 0;            /* no extra padding */
+      border-radius: 0;      /* no rounded “box” at all */
+      /* Base width before scaling: since we removed padding, shrink slightly */
+      width: 460px;
+      /* Scale from center so it remains centered in #wrapper */
       transform-origin: center center;
     }
 
-    /* ----------------------------------------------------------------
-       3a) HEADER: “H&B WELLNESS DAY”
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       4a) HEADER: “H&B WELLNESS DAY”
+       ---------------------------------------------------------------------------- */
     .timer h1 {
       color: #FFFFFF;
       font-weight: 900;
       text-transform: uppercase;
       font-size: 2.5rem; /* base size before scaling */
-      margin-bottom: 0.5em;
+      margin-bottom: 1rem; 
+      /* Glowy gold outline for the header */
       text-shadow:
-        0 0 8px rgba(255,215,0,0.6),
+        0 0 8px rgba(255, 215, 0, 0.6),
         -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
          1px  1px 0 #000;
     }
 
-    /* ----------------------------------------------------------------
-       3b) COUNTDOWN PANEL
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       4b) COUNTDOWN PANEL (unchanged: dark background + gold glow)
+       ---------------------------------------------------------------------------- */
     .countdown-panel {
       background: rgba(0, 0, 0, 0.45);
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      box-shadow: 0 0 12px rgba(255,215,0,0.6);
-      margin-bottom: 1rem;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      margin: 0 auto 1.5rem auto; /* extra gap below for spacing */
       width: 100%;
       text-align: center;
     }
     #countdown {
       color: #FFFFFF;
       text-shadow:
-        0 0 4px rgba(0,0,0,0.6),
+        0 0 4px rgba(0, 0, 0, 0.6),
         -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
@@ -99,9 +118,9 @@
       opacity: 0.85;
     }
 
-    /* ----------------------------------------------------------------
-       3c) BUTTON: “FOR MORE INFO – CLICK HERE!”
-       ---------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------------
+       4c) BUTTON: “FOR MORE INFO – CLICK HERE!”
+       ---------------------------------------------------------------------------- */
     .info-button {
       display: block;
       background-color: #E53935; /* promo red */
@@ -114,20 +133,24 @@
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
       transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
       width: 100%;
       text-align: center;
     }
     .info-button:hover {
       transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
 
 <body>
   <div id="wrapper">
+    <!-- 3) Canvas for falling confetti, behind everything else -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- 4) .timer: fully transparent, just holds header, countdown, and button -->
     <div class="timer" id="timer">
       <h1>H&amp;B WELLNESS DAY</h1>
 
@@ -146,7 +169,7 @@
 
   <script>
     /********************************************
-     * 1) COUNTDOWN LOGIC (same as before)
+     * 1) COUNTDOWN LOGIC (unchanged)
      ********************************************/
     document.addEventListener('DOMContentLoaded', () => {
       const targetDate = new Date('2025-06-14T00:00:00');
@@ -178,9 +201,9 @@
     });
 
     /********************************************
-     * 2) AUTO‐SCALING & CENTERING LOGIC
+     * 2) AUTO-SCALING & CENTERING LOGIC
      ********************************************/
-    (function(){
+    (function() {
       const wrapper = document.getElementById('wrapper');
       const timerEl = document.getElementById('timer');
 
@@ -189,23 +212,83 @@
         const availW = wrapper.clientWidth;
         const availH = wrapper.clientHeight;
 
-        // 2) Temporarily reset any transform to get the “base” size
+        // 2) Temporarily reset transform to get the “base” size
         timerEl.style.transform = 'scale(1)';
         const baseW = timerEl.offsetWidth;
         const baseH = timerEl.offsetHeight;
 
-        // 3) Compute scale, clamped at 1 (never scale above 100%)
+        // 3) Compute scale (never above 1)
         const scaleX = availW / baseW;
         const scaleY = availH / baseH;
         const scale  = Math.min(scaleX, scaleY, 1);
 
-        // 4) Apply uniform scaling around the center of .timer
+        // 4) Apply uniform scaling around center
         timerEl.style.transform = `scale(${scale})`;
       }
 
-      // Run once on load, and again on every resize
       window.addEventListener('DOMContentLoaded', rescale);
-      window.addEventListener('resize',       rescale);
+      window.addEventListener('resize', rescale);
+    })();
+
+    /********************************************
+     * 3) FALLING CONFETTI LOGIC (10 pieces / 200ms)
+     ********************************************/
+    (function() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H;
+      const particles = [];
+      const colors = ['#FFD700', '#E02D27']; // gold & red
+
+      function resizeCanvas() {
+        W = canvas.width  = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('DOMContentLoaded', resizeCanvas);
+
+      function makeParticle() {
+        return {
+          x: Math.random() * W,
+          y: -10,
+          size: Math.random() * 8 + 4,
+          vx: Math.random() * 4 - 2,
+          vy: Math.random() * 3 + 2,
+          angle: Math.random() * Math.PI * 2,
+          va: Math.random() * 0.1 - 0.05,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        };
+      }
+
+      // Spawn 10 new particles every 200 ms (double-confetti)
+      setInterval(() => {
+        for (let i = 0; i < 10; i++) particles.push(makeParticle());
+      }, 200);
+
+      function drawConfetti() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.angle += p.va;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, 0, p.size, p.size * 0.4);
+          ctx.restore();
+
+          if (p.y > H + 20) particles.splice(i--, 1);
+        }
+        requestAnimationFrame(drawConfetti);
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        resizeCanvas();
+        drawConfetti();
+      });
     })();
   </script>
 </body>
