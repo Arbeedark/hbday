@@ -3,57 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>H&B Wellness Day Widget</title>
+  <title>H&B Wellness Day (Auto‐Scaling)</title>
   <style>
-    /* -----------------------------------------------------------------------------------
-       1) Reset and give <body> the original green‐to‐black gradient background 
-       ----------------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------
+       1) Reset & Full‐Screen Green‐to‐Black Gradient on <body>
+       ------------------------------------------------------------- */
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     html, body {
       width: 100%;
-      /* We remove height:100% here so that body can grow naturally if content is taller than the iframe */
-      min-height: 100%;
-      background: radial-gradient(
-        circle at center,
-        #0e5433 0%,
-        #000000 100%
-      );
+      height: 100%;
+      background: radial-gradient(circle at center, #0e5433 0%, #000000 100%);
       font-family: Arial, sans-serif;
-      /* Remove flex‐centering so that the widget sits at the top */
-      display: block;
-      overflow-y: auto;  /* Allow scrolling inside the iframe if the container is too short */
+      overflow: hidden;            /* We do not want scrollbars on the iframe */
     }
 
-    /* -----------------------------------------------------------------------------------
-       2) The “boxed” container (.timer) is exactly the same as before
-       ----------------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------
+       2) Outer wrapper that fills the iframe and holds our .timer
+       ------------------------------------------------------------- */
+    #wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      /* We will center the .timer inside this wrapper */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;   /* no cropping of children beyond what scaling handles */
+    }
+
+    /* -------------------------------------------------------------
+       3) The “.timer” Container (Header + Countdown + Button)
+       ------------------------------------------------------------- */
     .timer {
       position: relative;
       text-align: center;
-      background: rgba(0, 0, 0, 0.25);   /* semi-transparent black behind text */
-      padding: 2rem 1rem;
+      background: rgba(0, 0, 0, 0.25);   /* semi‐transparent black behind content */
       border-radius: 1rem;
-      /* fluid width—never narrower than 300px, never wider than 600px */
-      width: clamp(300px, 80%, 600px);
-      /* center the box horizontally within the iframe/body */
-      margin: 2rem auto; 
+      padding: 2rem 1rem;
+      /* We pick a “base” size for the timer; if the container is large, it will render at this size */
+      width: 500px;
+      /* The height of the “normal” widget at full size is about 350px—
+         we’ll use JS to measure this exactly, but you can think of it roughly as 350–380px. */
+      /* Note: We do NOT set a fixed height here, because the text inside can wrap/rescale;
+         instead, we’ll measure it dynamically at runtime. */
+      transform-origin: top center; /* so scaling shrinks from the top middle */
     }
 
-    /* -----------------------------------------------------------------------------------
-       3) Heading (“H&B WELLNESS DAY”)
-       ----------------------------------------------------------------------------------- */
+    /* 3a) HEADER (“H&B WELLNESS DAY”) */
     .timer h1 {
-      color: #FFFFFF;                   /* white text */
-      font-weight: 900;                 /* extra‐bold */
-      text-transform: uppercase;        /* all caps */
-      font-size: clamp(2.16rem, 7vw, 4.32rem); /* responsive sizing */
+      color: #FFFFFF;
+      font-weight: 900;
+      text-transform: uppercase;
+      /* This “base” font-size only applies before any scaling. After scaling, it shrinks accordingly. */
+      font-size: 2.5rem;
       margin-bottom: 0.5em;
-      /* gold glow + black outline */
       text-shadow:
         0 0 8px rgba(255, 215, 0, 0.6),
         -1px -1px 0 #000,
@@ -62,91 +70,104 @@
          1px  1px 0 #000;
     }
 
-    /* -----------------------------------------------------------------------------------
-       4) Countdown panel
-       ----------------------------------------------------------------------------------- */
+    /* 3b) COUNTDOWN PANEL */
     .countdown-panel {
-      background: rgba(0, 0, 0, 0.45);  /* slightly more opaque black */
+      background: rgba(0, 0, 0, 0.45);
       padding: 0.75rem 1.25rem;
       border-radius: 0.75rem;
-      /* soft gold glow around panel */
       box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
-      margin: 0 auto 1rem auto;        /* center + 1rem bottom margin */
+      margin: 0 auto 1rem auto;
       width: 100%;
       text-align: center;
     }
 
     #countdown {
-      color: #FFFFFF;                   /* bright white digits */
+      color: #FFFFFF;
       text-shadow:
         0 0 4px rgba(0, 0, 0, 0.6),
         -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
          1px  1px 0 #000;
-      font-weight: 700;                  /* semi-bold */
-      font-size: clamp(2.4rem, 7vw, 4.8rem); /* responsive sizing */
+      font-weight: 700;
+      font-size: 2rem;    /* base size before scaling */
       user-select: none;
-      white-space: nowrap;               /* keep everything in one line */
+      white-space: nowrap;
     }
     .count-unit {
       display: inline-block;
-      font-size: 0.4em;       /* small superscript for D/H/M/S */
+      font-size: 0.4em;       /* smaller superscripts for D/H/M/S */
       vertical-align: super;
       margin-left: 0.1em;
       text-transform: uppercase;
       opacity: 0.85;
     }
 
-    /* -----------------------------------------------------------------------------------
-       5) “FOR MORE INFO – CLICK HERE!” button
-       ----------------------------------------------------------------------------------- */
+    /* 3c) BUTTON (“FOR MORE INFO – CLICK HERE!”) */
     .info-button {
       display: block;
       background-color: #E53935;    /* promo red */
       color: #FFFFFF;
       border: none;
       padding: 0.9em 2em;
-      font-size: clamp(1rem, 3vw, 1.5rem); /* responsive sizing */
-      font-weight: 900;              /* extra‐bold */
+      font-size: 1rem;       /* base size before scaling */
+      font-weight: 900;
       border-radius: 0.75em;
       text-transform: uppercase;
       text-decoration: none;
       cursor: pointer;
       transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      width: 100%;                   /* fill same width as countdown panel */
+      width: 100%;
       text-align: center;
-      margin: 0 auto;
     }
     .info-button:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     }
+
+    /* -------------------------------------------------------------
+       4) OPTIONAL: If you want a “max‐scale” (so it never grows bigger
+       than its base 500px width), you could add:
+    ------------------------------------------------------------- */
+    /*
+    .timer[data-scale] {
+      /* data‐scale is set by JS below—if scale > 1, we clamp it to 1
+         so the widget never appears larger than “normal” size. */
+      transform: scale(1);
+    }
+    */
   </style>
 </head>
 
 <body>
-  <div class="timer">
-    <h1>H&amp;B WELLNESS DAY</h1>
 
-    <!-- Countdown panel -->
-    <div class="countdown-panel">
-      <div id="countdown">Loading…</div>
+  <!--
+    #wrapper fills the entire iframe.  .timer is placed at its natural size (500px wide)
+    and then scaled by JavaScript so that it always fits inside #wrapper.  
+  -->
+  <div id="wrapper">
+    <div class="timer" id="timer">
+      <h1>H&amp;B WELLNESS DAY</h1>
+
+      <div class="countdown-panel">
+        <div id="countdown">Loading…</div>
+      </div>
+
+      <a href="https://www.thehbhub.com/?386"
+         class="info-button"
+         target="_blank"
+         rel="noopener">
+        FOR MORE INFO – CLICK HERE!
+      </a>
     </div>
-
-    <!-- Button (opens in new tab) -->
-    <a href="https://www.thehbhub.com/?386"
-       class="info-button"
-       target="_blank"
-       rel="noopener">
-      FOR MORE INFO – CLICK HERE!
-    </a>
   </div>
 
   <script>
+    /************************************************************************
+     * 1) COUNTDOWN LOGIC – exactly as before, but with “base” font sizes.
+     ************************************************************************/
     document.addEventListener('DOMContentLoaded', () => {
-      // Set your target date/time here
       const targetDate = new Date('2025-06-14T00:00:00');
       const cd = document.getElementById('countdown');
 
@@ -159,7 +180,6 @@
           return;
         }
 
-        // Calculate days, hours, minutes, seconds
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / (1000 * 60)) % 60);
@@ -172,10 +192,55 @@
           `<span>${s}</span><span class="count-unit">S</span>`;
       }
 
-      // First call immediately, then once per second
       updateCountdown();
       setInterval(updateCountdown, 1000);
     });
+
+    /************************************************************************
+     * 2) AUTO‐SCALE LOGIC
+     *
+     * On every window resize (or orientation change), measure:
+     *    - containerWidth  = #wrapper.clientWidth
+     *    - containerHeight = #wrapper.clientHeight
+     *    - timerWidth      = #timer.offsetWidth
+     *    - timerHeight     = #timer.offsetHeight
+     *
+     * Then compute:
+     *    scaleX = containerWidth  / timerWidth
+     *    scaleY = containerHeight / timerHeight
+     *    scale  = Math.min(scaleX, scaleY, 1)   // “1” ensures we never scale UP above 100%
+     *
+     * Finally: set `timer.style.transform = 'scale(' + scale + ')'`.
+     ************************************************************************/
+    (function() {
+      const wrapper = document.getElementById('wrapper');
+      const timerEl = document.getElementById('timer');
+
+      function rescaleTimer() {
+        // 1) Get available size of wrapper
+        const containerWidth  = wrapper.clientWidth;
+        const containerHeight = wrapper.clientHeight;
+
+        // 2) Get the timer's natural (unscaled) size
+        //    We temporarily clear any transform to measure the “base” dimensions.
+        timerEl.style.transform = 'scale(1)';
+        const timerWidth  = timerEl.offsetWidth;
+        const timerHeight = timerEl.offsetHeight;
+
+        // 3) Compute the scale factor (never exceed 1)
+        const scaleX = containerWidth  / timerWidth;
+        const scaleY = containerHeight / timerHeight;
+        const scale  = Math.min(scaleX, scaleY, 1);
+
+        // 4) Apply the scaling transform
+        timerEl.style.transform = 'scale(' + scale + ')';
+      }
+
+      // Re‐compute scaling whenever the window (and thus the iframe) resizes
+      window.addEventListener('resize', rescaleTimer);
+      // Also run once immediately
+      window.addEventListener('DOMContentLoaded', rescaleTimer);
+    })();
   </script>
 </body>
 </html>
