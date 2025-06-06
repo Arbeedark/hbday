@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>H&B Wellness Day (No Outer Box)</title>
   <style>
-    /* -----------------------------------------------------------------------------
-       1) RESET + FULL-SCREEN GREEN-TO-BLACK RADIAL GRADIENT BACKGROUND
+    /* ----------------------------------------------------------------------------- 
+       1) RESET + FULL-SCREEN GREEN-TO-BLACK RADIAL GRADIENT BACKGROUND 
        ----------------------------------------------------------------------------- */
     * {
       margin: 0;
@@ -21,8 +21,8 @@
       overflow: hidden; /* we will scale rather than scroll */
     }
 
-    /* -----------------------------------------------------------------------------
-       2) WRAPPER that fills the iframe and flex-centers its content
+    /* ----------------------------------------------------------------------------- 
+       2) WRAPPER that fills the iframe and flex-centers its content 
        ----------------------------------------------------------------------------- */
     #wrapper {
       position: relative;
@@ -34,8 +34,8 @@
       overflow: hidden;        /* no scrollbars; shrink if needed */
     }
 
-    /* -----------------------------------------------------------------------------
-       3) CONFETTI CANVAS (behind everything)
+    /* ----------------------------------------------------------------------------- 
+       3) CONFETTI CANVAS (behind everything) 
        ----------------------------------------------------------------------------- */
     #confetti-canvas {
       position: absolute;
@@ -47,34 +47,43 @@
       z-index: 0;
     }
 
-    /* -----------------------------------------------------------------------------
-       4) “.timer” CONTAINER (now fully transparent—no padding or background)
-       
-       We remove all background/padding from this container; 
-       only the countdown‐panel and button carry their own backgrounds.
+    /* ----------------------------------------------------------------------------- 
+       4) FIREWORKS CANVAS (above confetti but behind the timer/content) 
+       ----------------------------------------------------------------------------- */
+    #fireworks-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* clicks go through */
+      z-index: 1;
+      display: none; /* hidden until countdown ends */
+    }
+
+    /* ----------------------------------------------------------------------------- 
+       5) “.timer” CONTAINER (no padding or background) 
        ---------------------------------------------------------------------------- */
     .timer {
       position: relative;
-      z-index: 1;            /* sit above confetti */
+      z-index: 2;            /* sit above confetti & fireworks */
       text-align: center;
       background: transparent;
-      padding: 0;            /* no extra padding */
-      border-radius: 0;      /* no rounded “box” at all */
-      /* Base width before scaling: since we removed padding, shrink slightly */
-      width: 460px;
-      /* Scale from center so it remains centered in #wrapper */
-      transform-origin: center center;
+      padding: 0;
+      border-radius: 0;
+      width: 460px;          /* Base width before scaling */
+      transform-origin: center center; /* scale from center */
     }
 
-    /* -----------------------------------------------------------------------------
-       4a) HEADER: “H&B WELLNESS DAY”
+    /* ----------------------------------------------------------------------------- 
+       5a) HEADER: “H&B WELLNESS DAY” (or updated text when countdown ends) 
        ---------------------------------------------------------------------------- */
     .timer h1 {
       color: #FFFFFF;
       font-weight: 900;
       text-transform: uppercase;
       font-size: 2.5rem; /* base size before scaling */
-      margin-bottom: 1rem; 
+      margin-bottom: 1rem;
       /* Glowy gold outline for the header */
       text-shadow:
         0 0 8px rgba(255, 215, 0, 0.6),
@@ -84,8 +93,8 @@
          1px  1px 0 #000;
     }
 
-    /* -----------------------------------------------------------------------------
-       4b) COUNTDOWN PANEL (unchanged: dark background + gold glow)
+    /* ----------------------------------------------------------------------------- 
+       5b) COUNTDOWN PANEL 
        ---------------------------------------------------------------------------- */
     .countdown-panel {
       background: rgba(0, 0, 0, 0.45);
@@ -118,8 +127,8 @@
       opacity: 0.85;
     }
 
-    /* -----------------------------------------------------------------------------
-       4c) BUTTON: “FOR MORE INFO – CLICK HERE!”
+    /* ----------------------------------------------------------------------------- 
+       5c) BUTTON: “FOR MORE INFO – CLICK HERE!” 
        ---------------------------------------------------------------------------- */
     .info-button {
       display: block;
@@ -147,14 +156,16 @@
 
 <body>
   <div id="wrapper">
-    <!-- 3) Canvas for falling confetti, behind everything else -->
+    <!-- 3) Canvas for falling confetti -->
     <canvas id="confetti-canvas"></canvas>
+    <!-- 4) Canvas for fireworks (hidden until countdown ends) -->
+    <canvas id="fireworks-canvas"></canvas>
 
-    <!-- 4) .timer: fully transparent, just holds header, countdown, and button -->
+    <!-- 5) .timer: holds header, countdown, and button -->
     <div class="timer" id="timer">
-      <h1>H&amp;B WELLNESS DAY</h1>
+      <h1 id="main-header">H&amp;B WELLNESS DAY</h1>
 
-      <div class="countdown-panel">
+      <div class="countdown-panel" id="countdown-panel">
         <div id="countdown">Loading…</div>
       </div>
 
@@ -168,19 +179,27 @@
   </div>
 
   <script>
-    /********************************************
-     * 1) COUNTDOWN LOGIC (unchanged)
+    /******************************************** 
+     * 1) COUNTDOWN LOGIC (modified to trigger celebration) 
      ********************************************/
     document.addEventListener('DOMContentLoaded', () => {
       const targetDate = new Date('2025-06-14T00:00:00');
       const cd = document.getElementById('countdown');
+      const countdownPanel = document.getElementById('countdown-panel');
+      const header = document.getElementById('main-header');
+      const fireworksCanvas = document.getElementById('fireworks-canvas');
+
+      let countdownInterval, fireworksStarted = false;
 
       function updateCountdown() {
         const now  = new Date();
         const diff = targetDate - now;
 
         if (diff <= 0) {
-          cd.textContent = "It's H&B Wellness Day!";
+          // Stop the countdown interval
+          clearInterval(countdownInterval);
+          // Switch to celebratory mode
+          startCelebration();
           return;
         }
 
@@ -196,12 +215,25 @@
           `<span>${s}</span><span class="count-unit">S</span>`;
       }
 
+      function startCelebration() {
+        // Change header text
+        header.textContent = "H&B WELLNESS DAY IS HERE!";
+        // Hide the countdown panel
+        countdownPanel.style.display = 'none';
+        // Reveal and start fireworks
+        fireworksCanvas.style.display = 'block';
+        if (!fireworksStarted) {
+          initFireworks();
+          fireworksStarted = true;
+        }
+      }
+
       updateCountdown();
-      setInterval(updateCountdown, 1000);
+      countdownInterval = setInterval(updateCountdown, 1000);
     });
 
-    /********************************************
-     * 2) AUTO-SCALING & CENTERING LOGIC
+    /******************************************** 
+     * 2) AUTO-SCALING & CENTERING LOGIC (unchanged) 
      ********************************************/
     (function() {
       const wrapper = document.getElementById('wrapper');
@@ -230,8 +262,8 @@
       window.addEventListener('resize', rescale);
     })();
 
-    /********************************************
-     * 3) FALLING CONFETTI LOGIC (10 pieces / 200ms)
+    /******************************************** 
+     * 3) FALLING CONFETTI LOGIC (10 pieces / 200ms) 
      ********************************************/
     (function() {
       const canvas = document.getElementById('confetti-canvas');
@@ -260,7 +292,7 @@
         };
       }
 
-      // Spawn 10 new particles every 200 ms (double-confetti)
+      // Spawn 10 new particles every 200 ms
       setInterval(() => {
         for (let i = 0; i < 10; i++) particles.push(makeParticle());
       }, 200);
@@ -290,6 +322,95 @@
         drawConfetti();
       });
     })();
+
+    /******************************************** 
+     * 4) FIREWORKS LOGIC (five bursts randomly behind the header) 
+     ********************************************/
+    function initFireworks() {
+      const canvas = document.getElementById('fireworks-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H;
+      const fireworks = [];
+
+      function resizeCanvas() {
+        W = canvas.width  = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('DOMContentLoaded', resizeCanvas);
+
+      // Create a single firework burst at a given x, y
+      function createFirework(x, y) {
+        const particles = [];
+        const count = 50 + Math.floor(Math.random() * 20);
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 2 + 1;
+          particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            alpha: 1,
+            radius: 2 + Math.random() * 2,
+            decay: 0.015 + Math.random() * 0.02,
+            color: `hsl(${Math.floor(Math.random() * 50 + 20)}, 100%, 60%)`
+          });
+        }
+        fireworks.push(particles);
+      }
+
+      // Periodically trigger five fireworks randomly around the header
+      setInterval(() => {
+        const centerX = W * 0.5;
+        const centerY = H * 0.48; // just behind header
+        const spreadX = W * 0.2;  // horizontal spread range
+        const spreadY = H * 0.06; // vertical spread range
+        for (let i = 0; i < 5; i++) {
+          const fx = centerX + (Math.random() - 0.5) * spreadX;
+          const fy = centerY + (Math.random() - 0.5) * spreadY;
+          createFirework(fx, fy);
+        }
+      }, 800);
+
+      function drawFireworks() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+          const particles = fireworks[i];
+          for (let j = particles.length - 1; j >= 0; j--) {
+            const p = particles[j];
+            // Move particle
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.02; // slight gravity
+            p.alpha -= p.decay;
+
+            if (p.alpha <= 0) {
+              particles.splice(j, 1);
+              continue;
+            }
+
+            // Draw particle
+            ctx.globalAlpha = p.alpha;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+          // Remove firework if no particles remain
+          if (particles.length === 0) {
+            fireworks.splice(i, 1);
+          }
+        }
+        requestAnimationFrame(drawFireworks);
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        resizeCanvas();
+        drawFireworks();
+      });
+    }
   </script>
 </body>
 </html>
